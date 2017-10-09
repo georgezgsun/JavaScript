@@ -3,17 +3,13 @@ var cellSize = 10;
 var fields = new Array();
 var fox = new Fox();
 var rabbit = new Rabbit();
-var localEnv = [0, 0, 0, 0, 0, 0, 0, 0];
+var localEnv = [0, 1, 2, 3, 4, 5, 6, 7,8];
 var totalFox = 0;
 var totalRabbit = 0;
 var extinctNum = 0;
 
-
 function setup() {
-    createCanvas(
-    	50*cellSize,
-    	50*cellSize
-    	);
+    createCanvas(50*cellSize,50*cellSize);
     
     for (var i = 0; i < 50; i++) {
     	fields[i] = new Array();
@@ -30,20 +26,16 @@ function draw(){
 	for (var i = 0; i < 50; i++) {
     	for (var j = 0; j < 50; j++) {
     		var f = round(fields[i][j]);
+            if (f > 1000) {
+                f -= 2000;  // f > 1000 indicate a current generation animal, clear it
+            }
     		if (f < 0) {
     			totalRabbit += 1;
     			fill(255,255,0);
-                if (f < -1000) {    // f < 1000 indicate a new move or new born rabbit
-                    f += 1000;      // adjust f to allow future grow
-                }
     		} else if (f > 0) {
     			totalFox += 1;
     			fill(255,100,100);
-                if (f > 1000) {     // f > 1000 indicate a new born or new move fox
-                    f -= 1000;      // adjust f to allow future grow
-                }
     		} else {
-    			f = 0;
     			fill(200,200,200);
     		}
      		rect(i*cellSize,j*cellSize,cellSize,cellSize);
@@ -60,7 +52,7 @@ function draw(){
     	}
     }
 
-    if (totalRabbit * totalFox == 0) {
+    if (totalRabbit * totalFox == 0) {  // one kind of animal extincts
         init();
     }
 }
@@ -69,13 +61,13 @@ function cellGrow(i,j) {
 	var f = round(fields[i][j]);
     var animal = (f>0) ? fox : rabbit;  // f > 0, it is a fox; f < 0, it is a rabbit
 	
-    if (f == 0 || f > 1000 || f < -1000) return; // f> 1000 or < -1000 indicate just growed
-
-	prepareAdjacent(i,j);
-    animal.init(localEnv);
-    animal.grow();
-    animal.getEnv(localEnv);
-	updateAdjacent(i,j);
+    if (f != 0 && f < 1000) {   // f > 1000 indicate it is a current generation animal, no more grow
+        prepareAdjacent(i,j);
+        animal.init(localEnv);
+        animal.grow();
+        animal.getEnv(localEnv);
+        updateAdjacent(i,j);
+    }
 }
 
 function prepareAdjacent(x,y) {
@@ -113,14 +105,13 @@ function init() {
             var f = random(-1,1);
             if (f > 0.85) {
                 totalFox += 1;
-                f = 8*100 + 1;  // it is a fox, energy 8, age 1   
+                fields[i][j] = 8*100 + 1;  // it is a fox, energy 8, age 1   
             } else if (f<-0.5) {
                 totalRabbit += 1;
-                f = -1; // it is a rabbit, age 1
+                fields[i][j] = -1; // it is a rabbit, age 1
             } else {
-                f = 0;  // it is an empty cell
+                fields[i][j] = 0;  // it is an empty cell
             }
-            fields[i][j] = round(f);
         }
     }
     extinctNum += 1;
