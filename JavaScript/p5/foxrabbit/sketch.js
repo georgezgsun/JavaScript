@@ -33,14 +33,14 @@ function draw(){
     		if (f < 0) {
     			totalRabbit += 1;
     			fill(255,255,0);
-                if (f < -1000) {
-                    f += 1000;
+                if (f < -1000) {    // f < 1000 indicate a new move or new born rabbit
+                    f += 1000;      // adjust f to allow future grow
                 }
     		} else if (f > 0) {
     			totalFox += 1;
     			fill(255,100,100);
-                if (f > 1000) {
-                    f -= 1000;
+                if (f > 1000) {     // f > 1000 indicate a new born or new move fox
+                    f -= 1000;      // adjust f to allow future grow
                 }
     		} else {
     			f = 0;
@@ -53,7 +53,7 @@ function draw(){
 	document.getElementById("info").innerHTML = "Generation:" + frameCount + " Fox:" 
     + totalFox + " Rabbit:" + totalRabbit + " Extinct:" + extinctNum;
 
-    // evolve the foxes and rabbits one by one
+    // grow the foxes and rabbits one by one
     for (var i = 0; i < 50; i++) {
     	for (var j = 0; j < 50; j++) {
     		cellGrow(i,j);
@@ -67,9 +67,9 @@ function draw(){
  
 function cellGrow(i,j) {
 	var f = round(fields[i][j]);
-	if (f == 0 || f > 1000 || f < -1000) return;
-
-    var animal = (f>0) ? fox : rabbit;
+    var animal = (f>0) ? fox : rabbit;  // f > 0, it is a fox; f < 0, it is a rabbit
+	
+    if (f == 0 || f > 1000 || f < -1000) return; // f> 1000 or < -1000 indicate just growed
 
 	prepareAdjacent(i,j);
     animal.init(localEnv);
@@ -113,12 +113,12 @@ function init() {
             var f = random(-1,1);
             if (f > 0.85) {
                 totalFox += 1;
-                f = 801;
+                f = 8*100 + 1;  // it is a fox, energy 8, age 1   
             } else if (f<-0.5) {
                 totalRabbit += 1;
-                f = -1;
+                f = -1; // it is a rabbit, age 1
             } else {
-                f = 0;
+                f = 0;  // it is an empty cell
             }
             fields[i][j] = round(f);
         }
