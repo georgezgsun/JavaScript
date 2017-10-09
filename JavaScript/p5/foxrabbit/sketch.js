@@ -6,6 +6,7 @@ var rabbit = new Rabbit();
 var localEnv = [0, 0, 0, 0, 0, 0, 0, 0];
 var totalFox = 0;
 var totalRabbit = 0;
+var extinctNum = 0;
 
 
 function setup() {
@@ -13,25 +14,14 @@ function setup() {
     	50*cellSize,
     	50*cellSize
     	);
-    background(0);
     
     for (var i = 0; i < 50; i++) {
     	fields[i] = new Array();
-    	for (var j = 0; j < 50; j++) {
-    		var f = random(-1,1);
-    		if (f > 0.85) {
-    			totalFox += 1;
-    			f = 801;
-    		} else if (f<-0.5) {
-    			totalRabbit += 1;
-    			f = -1;
-    		} else {
-    			f = 0;
-    		}
-    		fields[i][j] = round(f);
-    	}
     }
-    frameRate(10);
+    init();
+
+    background(0);
+    frameRate(50);
 }
 
 function draw(){
@@ -60,7 +50,8 @@ function draw(){
             fields[i][j] = round(f);
     	}
     }
-	document.getElementById("info").innerHTML = "Generation:" + frameCount + "Fox:" + totalFox + "Rabbit:" + totalRabbit;
+	document.getElementById("info").innerHTML = "Generation:" + frameCount + " Fox:" 
+    + totalFox + " Rabbit:" + totalRabbit + " Extinct:" + extinctNum;
 
     // evolve the foxes and rabbits one by one
     for (var i = 0; i < 50; i++) {
@@ -68,24 +59,22 @@ function draw(){
     		cellGrow(i,j);
     	}
     }
+
+    if (totalRabbit * totalFox == 0) {
+        init();
+    }
 }
  
 function cellGrow(i,j) {
 	var f = round(fields[i][j]);
-
 	if (f == 0 || f > 1000 || f < -1000) return;
 
-	prepareAdjacent(i,j);
-	if (f > 0) {
-		fox.init(localEnv);
-		fox.grow();
-		fox.getEnv(localEnv);
-	} else if (f < 0) {
-		rabbit.init(localEnv);
-		rabbit.grow();
-		rabbit.getEnv(localEnv);
-	}
+    var animal = (f>0) ? fox : rabbit;
 
+	prepareAdjacent(i,j);
+    animal.init(localEnv);
+    animal.grow();
+    animal.getEnv(localEnv);
 	updateAdjacent(i,j);
 }
 
@@ -95,7 +84,7 @@ function prepareAdjacent(x,y) {
 		for(var j = -1; j <= 1; j++) {
     		var ix = i + x;
     		var jy = j + y;
-    		localEnv[k] = 999;
+    		localEnv[k] = 999;    // for a cell outside assign a big number 999
     		if (ix >= 0 && ix < 50 && jy >= 0 && jy < 50) {
     			localEnv[k] = fields[ix][jy];
     		}
@@ -116,4 +105,23 @@ function updateAdjacent(x,y) {
     		k += 1;
 		}
 	}
+}
+
+function init() {
+    for (var i = 0; i < 50; i++) {
+        for (var j = 0; j < 50; j++) {
+            var f = random(-1,1);
+            if (f > 0.85) {
+                totalFox += 1;
+                f = 801;
+            } else if (f<-0.5) {
+                totalRabbit += 1;
+                f = -1;
+            } else {
+                f = 0;
+            }
+            fields[i][j] = round(f);
+        }
+    }
+    extinctNum += 1;
 }

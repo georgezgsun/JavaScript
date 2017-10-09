@@ -17,56 +17,40 @@ function Rabbit() {
 		age += 1;   // age one year old
 		space[4] = -age;
 		
-		var hasRoom = false;
-		for (var i = 0; i < 9; i++) {
-			if (round(space[i]) == 0) {
-				hasRoom = true;
-			}
-		}
-
 		breed();
 		jump();
 	}
 
 	breed = function() {
-		var hasRoom = false;
-		if (age < breedAge || random(0,1) < 0.5) {
-			return;
+		if (age >= breedAge && random(0,1) > 0.5 && hasRoom()) {
+			space[searchRoom()] = -1;	// new breeded rabit age 1;
 		}
-
-		for (var i = 0; i < 9; i++) {
-			if (space[i] == 0) hasRoom = true;
-		}
-		if (!hasRoom) {
-			space[4] = 0;
-			return;
-		}
-
-		var i;
-		// randomly find an available adjacent location
-		do {
-			i = floor(random(0,9));
-		} while (space[i] != 0);
-		// new breeded rabit age 1;
-		space[i] = -1; 
 	}
 
 	jump = function() {
-		var hasRoom = false;
+		if (hasRoom()) {
+		space[searchRoom()] = space[4]-1000;	//rabbit jumps to an empty cell
+		}
+		space[4] = 0; 		// current space has no rabbit now   	
+	}
+
+	hasRoom = function() {
+		var room = false;
 		for (var i = 0; i < 9; i++) {
-			if (round(space[i]) == 0) {
-				hasRoom = true;
+			if (round(space[i]) == 0) {    // search for an empty cell
+				room = true;
 			}
 		}
-		if (hasRoom) {
-			var i;
-			do {
-				i = floor(random(0,9));
-			} while (round(space[i]) != 0);
-			//rabbit jumps to an empty cell
-			space[i] = space[4]-1000;
-		}
-		// current space has no rabbit now   
-		space[4] = 0;   		
+		return room;
 	}
+
+	searchRoom = function() {
+		var i;
+		do {
+			i = floor(random(0,9));
+		} while (round(space[i]) != 0);	  // search for an empty cell
+		return i;
+	}
+
+
 }
