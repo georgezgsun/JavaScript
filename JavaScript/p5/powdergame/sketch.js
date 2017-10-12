@@ -40,7 +40,7 @@ function draw(){
 			rect(i*cellSize,j*cellSize,cellSize,cellSize);
 		}
 	}
-	
+
 	updateCells();
 
 	var s = document.getElementById("toolbar");
@@ -136,7 +136,7 @@ function sandUpdate(x,y) {
 	}
 }
 
-function mousePressed() {
+function mouseDragged() {
  	var x = round(mouseX/cellSize);
  	var y = round(mouseY/cellSize);
 
