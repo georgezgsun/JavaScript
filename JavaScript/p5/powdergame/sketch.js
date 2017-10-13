@@ -3,10 +3,18 @@
 // (10,100,255) for water
 
 var cells = [];
-var cellSize = 5;
-var tankHeight = 75;
-var tankWidth = 50;
+const cellSize = 5;
+const tankHeight = 75;
+const tankWidth = 50;
 var toolSelect;
+var bricks = {
+	air : 0,
+	water : 1,
+	sand : 2,
+	metal : 3,
+	glass : 4,
+	thunder : 5
+}
 
 
 function setup() {
@@ -16,7 +24,7 @@ function setup() {
     for (var i = 0; i < tankWidth; i++) {
     	cells[i] = new Array();
     	for (var j = 0; j < tankHeight; j++) {
-    		cells[i][j] = 0;	// fill with air in the beginning
+    		cells[i][j] = bricks.air;	// fill with air in the beginning
     	}
     }
 }	
@@ -25,17 +33,20 @@ function draw(){
 	for (var i = 0; i < tankWidth; i++) {
 		for (var j = 0; j < tankHeight; j++) {
 			switch (cells[i][j]) {
-				case 0 : 	// air
-					fill(200,200,200);
+				case bricks.metal : 	// metal
+					fill(20,20,20);
 					break;
-				case 1 : 	// water
-					fill(10,100,255);
-					break;
-				case 2 : 	// sand
+				case bricks.sand : 	// sand
 					fill(160,80,30);
 					break;
-				default : 	// metal
-					fill(20,20,20);
+				case bricks.water : 	// water
+					fill(10,100,255);
+					break;
+				case bricks.thunder : 	// thunder
+					fill(255,255,0);
+					break;
+				default : 	// air
+					fill(200,200,200);
 			}
 			rect(i*cellSize,j*cellSize,cellSize,cellSize);
 		}
@@ -53,17 +64,23 @@ function draw(){
 	}
 
 	switch (val) {
+		case "thunder" :
+			toolSelect = bricks.thunder;
+			break;
+		case "glass" :
+			toolSelect = bricks.glass;
+			break;
 		case "metal" :
-			toolSelect = 3;
+			toolSelect = bricks.metal;
 			break;
 		case "sand" :
-			toolSelect = 2;
+			toolSelect = bricks.sand;
 			break;
 		case "water" :
-			toolSelect = 1;
+			toolSelect = bricks.water;
 			break;
 		default :
-			toolSelect = 0;
+			toolSelect = bricks.air;
 	}
 }
 
@@ -73,14 +90,17 @@ for (var i = 0; i < tankWidth; i++) {
 			var x = round(random(tankWidth-1));
 			var y = round(random(tankHeight-1));
 			switch (cells[x][y]) {
-				case 0 : 
+				case bricks.air : 
 					airUpdate(x,y);
 					break;
-				case 1 :
+				case bricks.water :
 					waterUpdate(x,y);
 					break;
-				case 2 :
+				case bricks.sand :
 					sandUpdate(x,y);
+					break;
+				case bricks.thunder :
+					thunderUpdate(x,y);
 			}
 		}
 	}	
@@ -89,9 +109,9 @@ for (var i = 0; i < tankWidth; i++) {
 function airUpdate(x,y) {
 	if (y > 0) {
 		var c = cells[x][y-1];
-		if (c == 1 || c == 2) {
+		if (c == bricks.water || c == bricks.sand) {
 			cells[x][y] = c;
-			cells[x][y-1] = 0;
+			cells[x][y-1] = bricks.air;
 		}
 	}
 }
@@ -101,9 +121,9 @@ function waterUpdate(x,y) {
 		return;
 	}
 
-	if (y < tankHeight && cells[x][y+1] < 1) {
-		cells[x][y] = 0;
-		cells[x][y+1] = 1;
+	if (y < tankHeight && cells[x][y+1] < bricks.water) {
+		cells[x][y] = bricks.air;
+		cells[x][y+1] = bricks.water;
 		return;
 	}
 
@@ -121,8 +141,8 @@ function waterUpdate(x,y) {
 		p = -1
 	}
 
-	cells[x+p][y] = 1;
-	cells[x][y] = 0;
+	cells[x+p][y] = bricks.water;
+	cells[x][y] = bricks.air;
 }
 
 function sandUpdate(x,y) {
@@ -130,10 +150,23 @@ function sandUpdate(x,y) {
 		return;
 	}
 
-	if (cells[x][y+1] < 2) {
+	if (cells[x][y+1] < bricks.sand) {
 		cells[x][y] = cells[x][y+1];
-		cells[x][y+1] = 2;
+		cells[x][y+1] = bricks.sand;
 	}
+}
+
+function thunderUpdate(x,y) {
+	cells[x][y] = bricks.air;
+	if (y >= tankHeight-1) {
+		return;
+	}
+
+	if (cells[x][y+1] < 1) {
+		cells[x][y+1] = bricks.thunder;
+	} else if (cells[x][y+1] != bricks.metal) {
+			cells[x][y+1] = bricks.air;
+			}
 }
 
 function mouseDragged() {
