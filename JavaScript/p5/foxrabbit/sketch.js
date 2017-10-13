@@ -140,22 +140,21 @@ function updateCurves(tr,tf,ra,fa) {
 
     curves[0][0] = round(tr/10);
     curves[1][0] = round(tf/10);
-    curves[2][0] = round(15*ra/tr);
-    curves[3][0] = round(15*fa/tf);
+    curves[2][0] = round(10*ra/tr);
+    curves[3][0] = round(10*fa/tf);
 }
 
 function drawCurves() {
-    var s = ["Total Rabbits", "Total Fox", "Rabbit avr. Age", "Fox avr. Age"];
+    fill(200,200,200);
+    rect(0,500,500,250);
     for (var j = 0; j < 499; j++) {
         var x = j;
-        var y0 = height;
-        var y1 = height - 250;
-        stroke(220);
-        line(x,y0,x,y1);
+        var y0;
+        var y1;
 
         for (var i = 0; i < 4; i++) {
-            y0 = height-curves[i][j] - floor(i/2) * 120;
-            y1 = height-curves[i][j+1] - floor(i/2) * 120;
+            y0 = height-curves[i][j] - floor(i/2) * 150;
+            y1 = height-curves[i][j+1] - floor(i/2) * 150;
             stroke(255,255,0);
             if (i % 2) {
                 stroke(255,100,100);
@@ -165,10 +164,11 @@ function drawCurves() {
     }
 
     stroke(20);
-    line(0,749-120,499,749-120);
+    fill(20);
+    line(0,749-150,499,749-150);
     line(0,749,499,749);
     text("Total Numbers", 400,749);
-    text("Average Age",400,749-120);
+    text("Average Age",400,749-150);
     
     stroke(220);
     line(499,height,499,height-250);    
