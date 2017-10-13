@@ -1,28 +1,39 @@
 
 var cellSize = 10;
-var fields = new Array();
+var fields = [];
 var fox = new Fox();
 var rabbit = new Rabbit();
 var localEnv = [0, 1, 2, 3, 4, 5, 6, 7,8];
-var totalFox = 0;
-var totalRabbit = 0;
 var extinctNum = 0;
+var curves = [];
 
 function setup() {
-    createCanvas(50*cellSize,50*cellSize);
+    createCanvas(50*cellSize,75*cellSize);
     
     for (var i = 0; i < 50; i++) {
-    	fields[i] = new Array();
+    	fields[i] = [];
+    }
+
+    for (var i = 0; i < 4; i++) {
+        curves[i] = [];
     }
     init();
 
-    background(0);
+    for (var i = 0; i < 4; i++) {
+        for (var j = 0; j < 500; j++)
+            curves[i][j] = 0;
+    }
+
+    background(50);
     frameRate(50);
+    textSize(15);
 }
 
 function draw(){
-	totalRabbit = 0;
-	totalFox = 0;
+	var totalRabbit = 0;
+	var totalFox = 0;
+    var foxAge = 0;
+    var rabbitAge = 0;
 	for (var i = 0; i < 50; i++) {
     	for (var j = 0; j < 50; j++) {
     		var f = round(fields[i][j]);
@@ -31,9 +42,11 @@ function draw(){
             }
     		if (f < 0) {
     			totalRabbit += 1;
+                rabbitAge += -f;
     			fill(255,255,0);
     		} else if (f > 0) {
     			totalFox += 1;
+                foxAge += f % 100;
     			fill(255,100,100);
     		} else {
     			fill(200,200,200);
@@ -44,6 +57,9 @@ function draw(){
     }
 	document.getElementById("info").innerHTML = "Generation:" + frameCount + " Fox:" 
     + totalFox + " Rabbit:" + totalRabbit + " Extinct:" + extinctNum;
+
+   updateCurves(totalRabbit,totalFox,rabbitAge,foxAge);
+   drawCurves();
 
     // grow the foxes and rabbits one by one
     for (var i = 0; i < 50; i++) {
@@ -104,10 +120,8 @@ function init() {
         for (var j = 0; j < 50; j++) {
             var f = random(-1,1);
             if (f > 0.85) {
-                totalFox += 1;
                 fields[i][j] = 8*100 + 1;  // it is a fox, energy 8, age 1   
             } else if (f<-0.5) {
-                totalRabbit += 1;
                 fields[i][j] = -1; // it is a rabbit, age 1
             } else {
                 fields[i][j] = 0;  // it is an empty cell
@@ -115,4 +129,47 @@ function init() {
         }
     }
     extinctNum += 1;
+}
+
+function updateCurves(tr,tf,ra,fa) {
+    for (var i = 0; i < 4; i++) {
+        for(var j = 499; j > 0; j--) {
+            curves[i][j] = curves[i][j-1];
+        }
+    }
+
+    curves[0][0] = round(tr/10);
+    curves[1][0] = round(tf/10);
+    curves[2][0] = round(15*ra/tr);
+    curves[3][0] = round(15*fa/tf);
+}
+
+function drawCurves() {
+    var s = ["Total Rabbits", "Total Fox", "Rabbit avr. Age", "Fox avr. Age"];
+    for (var j = 0; j < 499; j++) {
+        var x = j;
+        var y0 = height;
+        var y1 = height - 250;
+        stroke(220);
+        line(x,y0,x,y1);
+
+        for (var i = 0; i < 4; i++) {
+            y0 = height-curves[i][j] - floor(i/2) * 120;
+            y1 = height-curves[i][j+1] - floor(i/2) * 120;
+            stroke(255,255,0);
+            if (i % 2) {
+                stroke(255,100,100);
+            }
+            line(x,y0,x+1,y1);
+        }
+    }
+
+    stroke(20);
+    line(0,749-120,499,749-120);
+    line(0,749,499,749);
+    text("Total Numbers", 400,749);
+    text("Average Age",400,749-120);
+    
+    stroke(220);
+    line(499,height,499,height-250);    
 }
